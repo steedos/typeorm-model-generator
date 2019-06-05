@@ -55,7 +55,70 @@ export async function createModelFromDatabase(
         driver.defaultValues
     );
     modelGenerationPhase(connectionOptions, generationOptions, dbModel);
+    modelGenerationPhaseToSteedosYml(
+        connectionOptions,
+        generationOptions,
+        dbModel
+    );
 }
+
+export function modelGenerationPhaseToSteedosYml(
+    connectionOptions: IConnectionOptions,
+    generationOptions: IGenerationOptions,
+    databaseModel: EntityInfo[]
+) {
+    createHandlebarsHelpers(generationOptions);
+    const templatePath = path.resolve(
+        __dirname,
+        "../../src/steedos_object.mst"
+    );
+    const template = fs.readFileSync(templatePath, "UTF-8");
+    const resultPath = generationOptions.resultsPath;
+    if (!fs.existsSync(resultPath)) {
+        fs.mkdirSync(resultPath);
+    }
+    let entitesPath = resultPath;
+    if (!generationOptions.noConfigs) {
+        // TODO 生成steedos-config.yml?
+        // createTsConfigFile(resultPath);
+        // createTypeOrmConfig(resultPath, connectionOptions);
+        entitesPath = path.resolve(resultPath, "./objects");
+        if (!fs.existsSync(entitesPath)) {
+            fs.mkdirSync(entitesPath);
+        }
+    }
+    const compliedTemplate = Handlebars.compile(template, {
+        noEscape: true
+    });
+    databaseModel.forEach(element => {
+        let casedFileName = "";
+        switch (generationOptions.convertCaseFile) {
+            case "camel":
+                casedFileName = changeCase.camelCase(element.tsEntityName);
+                break;
+            case "param":
+                casedFileName = changeCase.paramCase(element.tsEntityName);
+                break;
+            case "pascal":
+                casedFileName = changeCase.pascalCase(element.tsEntityName);
+                break;
+            case "none":
+                casedFileName = element.tsEntityName;
+                break;
+        }
+        const resultFilePath = path.resolve(
+            entitesPath,
+            casedFileName + ".object.yml"
+        );
+        console.log("element", JSON.stringify(element));
+        const rendered = compliedTemplate(element);
+        fs.writeFileSync(resultFilePath, rendered, {
+            encoding: "UTF-8",
+            flag: "w"
+        });
+    });
+}
+
 export async function dataCollectionPhase(
     driver: AbstractDriver,
     connectionOptions: IConnectionOptions
@@ -292,7 +355,8 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions) {
         lt: (v1, v2) => v1 < v2,
         lte: (v1, v2) => v1 <= v2,
         ne: (v1, v2) => v1 !== v2,
-        or: (v1, v2) => v1 || v2
+        or: (v1, v2, v3, v4, v5, v6) => v1 || v2 || v3 || v4 || v5 || v6,
+        isEmpty: v => !v || v.length === 0
     });
 }
 
