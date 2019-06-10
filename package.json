@@ -30,6 +30,7 @@
     "inquirer": "^6.2.2",
     "mssql": "^4.3.2",
     "mysql": "^2.16.0",
+    "oracledb": "^3.1.2",
     "pg": "^7.8.1",
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^4.0.6",

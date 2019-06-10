@@ -39,10 +39,35 @@ export class OracleDriver extends AbstractDriver {
         return response;
     };
 
+    public async getDatabaseVersion() {
+        const result = (await this.Connection.execute(
+            `select version from sys.product_component_version where product like '%Oracle%'`
+        )).rows!;
+        return result.length && result[0] && result[0].VERSION;
+    }
+
     public async GetCoulmnsFromEntity(
         entities: EntityInfo[],
         schema: string
     ): Promise<EntityInfo[]> {
+        const databaseVersion = await this.getDatabaseVersion();
+
+        let sql = `SELECT utc.TABLE_NAME, utc.COLUMN_NAME, DATA_DEFAULT, NULLABLE, DATA_TYPE, DATA_LENGTH,
+        DATA_PRECISION, DATA_SCALE, IDENTITY_COLUMN,
+        (select count(*) from USER_CONS_COLUMNS ucc
+         JOIN USER_CONSTRAINTS uc ON  uc.CONSTRAINT_NAME = ucc.CONSTRAINT_NAME and uc.CONSTRAINT_TYPE='U'
+        where ucc.column_name = utc.COLUMN_NAME AND ucc.table_name = utc.TABLE_NAME) IS_UNIQUE
+       FROM USER_TAB_COLUMNS utc`;
+
+        if (databaseVersion.split(".")[0] < 12) {
+            sql = `SELECT utc.TABLE_NAME, utc.COLUMN_NAME, DATA_DEFAULT, NULLABLE, DATA_TYPE, DATA_LENGTH,
+        DATA_PRECISION, DATA_SCALE, 'NO' as IDENTITY_COLUMN,
+        (select count(*) from USER_CONS_COLUMNS ucc
+         JOIN USER_CONSTRAINTS uc ON  uc.CONSTRAINT_NAME = ucc.CONSTRAINT_NAME and uc.CONSTRAINT_TYPE='U'
+        where ucc.column_name = utc.COLUMN_NAME AND ucc.table_name = utc.TABLE_NAME) IS_UNIQUE
+       FROM USER_TAB_COLUMNS utc`;
+        }
+
         const response: Array<{
             TABLE_NAME: string;
             COLUMN_NAME: string;
@@ -54,13 +79,7 @@ export class OracleDriver extends AbstractDriver {
             DATA_SCALE: number;
             IDENTITY_COLUMN: string;
             IS_UNIQUE: number;
-        }> = (await this.Connection
-            .execute(`SELECT utc.TABLE_NAME, utc.COLUMN_NAME, DATA_DEFAULT, NULLABLE, DATA_TYPE, DATA_LENGTH,
-            DATA_PRECISION, DATA_SCALE, IDENTITY_COLUMN,
-            (select count(*) from USER_CONS_COLUMNS ucc
-             JOIN USER_CONSTRAINTS uc ON  uc.CONSTRAINT_NAME = ucc.CONSTRAINT_NAME and uc.CONSTRAINT_TYPE='U'
-            where ucc.column_name = utc.COLUMN_NAME AND ucc.table_name = utc.TABLE_NAME) IS_UNIQUE
-           FROM USER_TAB_COLUMNS utc`)).rows!;
+        }> = (await this.Connection.execute(sql)).rows!;
 
         entities.forEach(ent => {
             response

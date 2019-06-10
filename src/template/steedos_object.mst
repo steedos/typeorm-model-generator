@@ -1,0 +1,44 @@
+name: {{toEntityName tsEntityName}}
+label: {{toLabel tsEntityName}}
+icon: contact_list
+fields:{{#Columns}}{{#options}}{{#if name}}
+  {{name}}:
+    label: {{toLabel name}}{{#generated}}
+    type: {{steedosType}}{{/generated}}{{^generated}}{{#if (isEmpty ../relations)}}
+    type: {{steedosType}}{{else}}{{#../relations}}{{#if (or isOneToMany isManyToMany isOneToOne isManyToOne)}}
+    type: lookup
+    reference_to: {{relatedTable}}{{else}}
+    type: {{steedosType}}{{/if}}{{/../relations}}{{/if}}{{/generated}}{{#if (eq steedosType 'textarea')}}
+    rows: 4 {{/if}}{{#primary}}
+    primary: {{primary}}{{/primary}}{{#generated}}
+    generated: true{{/generated}}{{#precision}}
+    precision: {{.}}{{/precision}}{{#scale}}
+    scale: {{.}}{{/scale}}{{^scale}}{{#if (contain type 'money')}}
+    scale: 4{{/if}}{{/scale}}{{^nullable}}
+    required: true{{/nullable}}{{#if (eq type 'bigint')}}
+    fieldDBType: {{type}}{{/if}}{{#if (eq name 'name')}}
+    is_name: true{{/if}}
+    is_wide: false
+    readonly: false{{#rows}}
+    rows: {{rows}}{{/rows}}{{/if}}{{/options}}{{/Columns}}
+list_views:
+  all:
+    label: 全部
+    columns:{{#Columns}}{{#options}}{{#if name}}
+      - {{name}}{{/if}}{{/options}}{{/Columns}}
+    filter_scope: space
+permission_set:
+  user:
+    allowCreate: true
+    allowDelete: true
+    allowEdit: true
+    allowRead: true
+    modifyAllRecords: false
+    viewAllRecords: true
+  admin:
+    allowCreate: true
+    allowDelete: true
+    allowEdit: true
+    allowRead: true
+    modifyAllRecords: true
+    viewAllRecords: true

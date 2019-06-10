@@ -1,0 +1,22 @@
+env:
+  PORT: 5000
+  ROOT_URL: http://127.0.0.1:5000
+datasources:
+  default:
+    connection: 
+      url: mongodb://127.0.0.1/steedos
+  {{datasourceName}}:
+    connection:
+      driver: {{#if (eq databaseType 'mssql')}}sqlserver{{else}}{{databaseType}}{{/if}}
+      host: {{host}}
+      port: {{port}}
+      username: {{user}}
+      password: {{password}}
+      database: {{databaseName}}
+    objectFiles:
+      - objects
+public:
+  cfs:
+    store: "local"
+    local: 
+      folder: "./storage"
