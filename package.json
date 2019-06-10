@@ -1,8 +1,8 @@
 {
-  "name": "typeorm-model-generator",
+  "name": "steedos-model-generator",
   "version": "0.3.4",
-  "description": "Generates models for TypeORM from existing databases.",
-  "bin": "bin/typeorm-model-generator",
+  "description": "Generates models for steedos from existing databases.",
+  "bin": "bin/steedos-model-generator",
   "scripts": {
     "setup": "npm install",
     "start": " node ./dist/src/index.js",
