@@ -32,6 +32,21 @@ WHERE TABLE_TYPE='BASE TABLE' and TABLE_SCHEMA in (${schema}) AND TABLE_CATALOG 
         return response;
     };
 
+    public getIsUnique(uniqueResponse, tableName, columnName, tableSchema) {
+        let isUnique = 0;
+        uniqueResponse.find(element => {
+            if (
+                element.TABLE_NAME === tableName &&
+                element.COLUMN_NAME === columnName &&
+                element.TABLE_SCHEMA === tableSchema
+            ) {
+                isUnique = 1;
+            }
+            return isUnique > 0;
+        });
+        return isUnique;
+    }
+
     public async GetCoulmnsFromEntity(
         entities: EntityInfo[],
         schema: string,
@@ -48,24 +63,26 @@ WHERE TABLE_TYPE='BASE TABLE' and TABLE_SCHEMA in (${schema}) AND TABLE_CATALOG 
             NUMERIC_PRECISION: number;
             NUMERIC_SCALE: number;
             IsIdentity: number;
-            IsUnique: number;
+            TABLE_SCHEMA: string;
         }> = (await request.query(`SELECT TABLE_NAME,COLUMN_NAME,COLUMN_DEFAULT,IS_NULLABLE,
    DATA_TYPE,CHARACTER_MAXIMUM_LENGTH,NUMERIC_PRECISION,NUMERIC_SCALE,
-   COLUMNPROPERTY(object_id(TABLE_NAME), COLUMN_NAME, 'IsIdentity') IsIdentity,
-   (SELECT count(*)
-    FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
-        inner join INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE cu
-            on cu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
-    where
-        tc.CONSTRAINT_TYPE = 'UNIQUE'
-        and tc.TABLE_NAME = c.TABLE_NAME
-        and cu.COLUMN_NAME = c.COLUMN_NAME
-        and tc.TABLE_SCHEMA=c.TABLE_SCHEMA) IsUnique
+   COLUMNPROPERTY(object_id(TABLE_NAME), COLUMN_NAME, 'IsIdentity') IsIdentity, TABLE_SCHEMA 
    FROM INFORMATION_SCHEMA.COLUMNS c
    where TABLE_SCHEMA in (${schema}) AND TABLE_CATALOG in (${this.escapeCommaSeparatedList(
             dbNames
         )})
         order by ordinal_position`)).recordset;
+        const uniqueResponse: Array<{
+            TABLE_NAME: string;
+            COLUMN_NAME: string;
+            TABLE_SCHEMA: string;
+        }> = (await request.query(`SELECT tc.TABLE_NAME, cu.COLUMN_NAME, tc.TABLE_SCHEMA
+        FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+            inner join INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE cu
+                on cu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
+        where
+            tc.CONSTRAINT_TYPE = 'UNIQUE'`)).recordset;
+
         entities.forEach(ent => {
             response
                 .filter(filterVal => {
@@ -73,11 +90,17 @@ WHERE TABLE_TYPE='BASE TABLE' and TABLE_SCHEMA in (${schema}) AND TABLE_CATALOG 
                 })
                 .forEach(resp => {
                     const colInfo: ColumnInfo = new ColumnInfo();
+                    const isUnique = this.getIsUnique(
+                        uniqueResponse,
+                        resp.TABLE_NAME,
+                        resp.COLUMN_NAME,
+                        resp.TABLE_SCHEMA
+                    );
                     colInfo.tsName = resp.COLUMN_NAME;
                     colInfo.options.name = resp.COLUMN_NAME;
                     colInfo.options.nullable = resp.IS_NULLABLE === "YES";
                     colInfo.options.generated = resp.IsIdentity === 1;
-                    colInfo.options.unique = resp.IsUnique === 1;
+                    colInfo.options.unique = isUnique === 1;
                     colInfo.options.default = this.ReturnDefaultValueFunction(
                         resp.COLUMN_DEFAULT
                     );
