@@ -81,26 +81,28 @@ export function modelGenerationPhaseToSteedosYml(
     let entitesPath = resultPath;
     if (!generationOptions.noConfigs) {
         console.log("connectionOptions", connectionOptions);
-        // TODO 生成steedos-config.yml?
-        // createTsConfigFile(resultPath);
-        // createTypeOrmConfig(resultPath, connectionOptions);
-        createSteedosConfig(resultPath, connectionOptions);
-        if (connectionOptions.databaseType === "sqlite") {
-            entitesPath = path.resolve(resultPath, `./objects`);
-        } else if (connectionOptions.databaseType === "oracle") {
-            entitesPath = path.resolve(
-                resultPath,
-                `./objects/${connectionOptions.user}`
-            );
-        } else {
-            entitesPath = path.resolve(
-                resultPath,
-                `./objects/${connectionOptions.databaseName}`
-            );
-        }
+        entitesPath = path.resolve(resultPath, `./objects`);
         if (!fs.existsSync(entitesPath)) {
             fs.mkdirSync(entitesPath);
         }
+
+        if (connectionOptions.databaseType === "oracle") {
+            entitesPath = path.resolve(
+                entitesPath,
+                `./${connectionOptions.user}`
+            );
+        } else {
+            entitesPath = path.resolve(
+                entitesPath,
+                `./${connectionOptions.databaseName}`
+            );
+        }
+
+        if (!fs.existsSync(entitesPath)) {
+            fs.mkdirSync(entitesPath);
+        }
+        createSteedosConfig(resultPath, connectionOptions, entitesPath);
+        createSteedosAppConfig(entitesPath, connectionOptions, databaseModel);
     }
     const compliedTemplate = Handlebars.compile(template, {
         noEscape: true
@@ -130,9 +132,6 @@ export function modelGenerationPhaseToSteedosYml(
         columns.forEach(column => {
             column.options.steedosType = Type.getSteedosType(column);
         });
-        if (element.tsEntityName === "posts") {
-            console.log("element", JSON.stringify(element));
-        }
         const rendered = compliedTemplate(element);
         fs.writeFileSync(resultFilePath, rendered, {
             encoding: "UTF-8",
@@ -406,10 +405,9 @@ function createTsConfigFile(resultPath) {
 }
 function createSteedosConfig(
     resultPath: string,
-    connectionOptions: IConnectionOptions
+    connectionOptions: IConnectionOptions,
+    entitesPath: string
 ) {
-    console.log("resultPath", resultPath);
-    console.log("connectionOptions", connectionOptions);
     const templateData: any = connectionOptions;
     if (connectionOptions.databaseType === "sqlite") {
         templateData.datasourceName = changeCase.camelCase(
@@ -424,7 +422,8 @@ function createSteedosConfig(
     } else {
         templateData.datasourceName = connectionOptions.databaseName;
     }
-    console.log("templateData", templateData);
+
+    templateData.entitesPath = path.relative(resultPath, entitesPath);
 
     const templatePath = path.resolve(
         __dirname,
@@ -437,13 +436,53 @@ function createSteedosConfig(
     });
 
     const rendered = compliedTemplate(templateData);
-
-    console.log("rendered", rendered);
-
     fs.writeFileSync(path.resolve(resultPath, "steedos-config.yml"), rendered, {
         encoding: "UTF-8",
         flag: "w"
     });
+}
+
+function createSteedosAppConfig(
+    resultPath: string,
+    connectionOptions: IConnectionOptions,
+    entities
+) {
+    const templateData: any = connectionOptions;
+    if (connectionOptions.databaseType === "sqlite") {
+        templateData.datasourceName = changeCase.camelCase(
+            connectionOptions.databaseName
+                .split("\\")
+                .slice(-1)[0]
+                .split(".")
+                .slice(0)[0]
+        );
+    } else if (connectionOptions.databaseType === "oracle") {
+        templateData.datasourceName = connectionOptions.user;
+    } else {
+        templateData.datasourceName = connectionOptions.databaseName;
+    }
+
+    templateData.entities = entities;
+
+    const templatePath = path.resolve(
+        __dirname,
+        "../../src/template/steedos_app.mst"
+    );
+    const template = fs.readFileSync(templatePath, "UTF-8");
+
+    const compliedTemplate = Handlebars.compile(template, {
+        noEscape: true
+    });
+
+    const rendered = compliedTemplate(templateData);
+    fs.writeFileSync(
+        path.resolve(resultPath, `${templateData.datasourceName}.app.yml`),
+        rendered,
+        {
+            encoding: "UTF-8",
+            flag: "w"
+        }
+    );
 }
 
 function createTypeOrmConfig(

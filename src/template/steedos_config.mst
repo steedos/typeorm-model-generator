@@ -14,7 +14,9 @@ datasources:
       password: {{password}}
       database: {{databaseName}}
     objectFiles:
-      - objects
+      - {{entitesPath}}
+    appFiles:
+      - {{entitesPath}}
 public:
   cfs:
     store: "local"

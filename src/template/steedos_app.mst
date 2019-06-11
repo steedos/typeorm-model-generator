@@ -1,0 +1,7 @@
+_id: {{datasourceName}}
+name: {{datasourceName}}
+description: 
+icon_slds: thanks
+is_creator: true
+objects: {{#entities}}
+  - {{toEntityName tsEntityName}}{{/entities}}
