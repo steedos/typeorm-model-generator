@@ -6,7 +6,7 @@ const dateTsTypes: string[] = [];
 const datetimeTsTypes: string[] = ["Date"];
 const numberTsTypes: string[] = ["number"];
 
-export default class Type {
+export default class Steedos {
     static getSteedosType(columnInfo: ColumnInfo) {
         const tsType = columnInfo.tsType;
         const dbType = columnInfo.options.type;
@@ -41,5 +41,20 @@ export default class Type {
                 return "text";
             }
         }
+    }
+
+    static getSteedosReferenceTo(columnInfo: ColumnInfo) {
+        let referenceTo: any[] = [];
+        if (columnInfo.relations && columnInfo.relations.length > 0) {
+            columnInfo.relations.forEach(relation => {
+                referenceTo.push({ name: relation.relatedTable });
+            });
+        }
+
+        if (referenceTo.length === 1) {
+            return referenceTo[0];
+        }
+
+        return referenceTo;
     }
 }

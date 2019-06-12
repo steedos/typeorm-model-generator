@@ -14,8 +14,8 @@ import { IConnectionOptions } from "./IConnectionOptions";
 import { IGenerationOptions } from "./IGenerationOptions";
 import { EntityInfo } from "./models/EntityInfo";
 import { NamingStrategy } from "./NamingStrategy";
+import Steedos from "./steedos";
 import * as TomgUtils from "./Utils";
-import Type from "./types";
 
 export function createDriver(driverName: string): AbstractDriver {
     switch (driverName) {
@@ -55,7 +55,7 @@ export async function createModelFromDatabase(
         generationOptions,
         driver.defaultValues
     );
-    modelGenerationPhase(connectionOptions, generationOptions, dbModel);
+    // modelGenerationPhase(connectionOptions, generationOptions, dbModel);
     modelGenerationPhaseToSteedosYml(
         connectionOptions,
         generationOptions,
@@ -80,7 +80,6 @@ export function modelGenerationPhaseToSteedosYml(
     }
     let entitesPath = resultPath;
     if (!generationOptions.noConfigs) {
-        console.log("connectionOptions", connectionOptions);
         entitesPath = path.resolve(resultPath, `./objects`);
         if (!fs.existsSync(entitesPath)) {
             fs.mkdirSync(entitesPath);
@@ -130,8 +129,14 @@ export function modelGenerationPhaseToSteedosYml(
 
         const columns = element.Columns;
         columns.forEach(column => {
-            column.options.steedosType = Type.getSteedosType(column);
+            column.options.steedosType = Steedos.getSteedosType(column);
+            if (element.tsEntityName === "QUEST_SOO_AT_EXECUTION_PLAN") {
+                column.options.reference_to = Steedos.getSteedosReferenceTo(
+                    column
+                );
+            }
         });
+
         const rendered = compliedTemplate(element);
         fs.writeFileSync(resultFilePath, rendered, {
             encoding: "UTF-8",
@@ -383,7 +388,8 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions) {
         ne: (v1, v2) => v1 !== v2,
         or: (v1, v2, v3, v4, v5, v6) => v1 || v2 || v3 || v4 || v5 || v6,
         isEmpty: v => !v || v.length === 0,
-        contain: (v1, v2) => v1 && v1.indexOf(v2) != -1
+        contain: (v1, v2) => v1 && v1.indexOf(v2) != -1,
+        isMultiple: v => v && v.length > 1
     });
 }
 
