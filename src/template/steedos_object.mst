@@ -9,7 +9,7 @@ fields:{{#Columns}}{{#options}}{{#if name}}
     type: master_detail
     reference_to: {{relatedTable}}{{else}}
     type: lookup
-    reference_to: {{/if}}{{else}}
+    reference_to: {{relatedTable}}{{/if}}{{else}}
     type: {{steedosType}}{{/if}}{{/../relations}}{{/if}}{{/generated}}{{#if (eq steedosType 'textarea')}}
     rows: 4 {{/if}}{{#primary}}
     primary: {{primary}}{{/primary}}{{#generated}}
