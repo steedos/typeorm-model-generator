@@ -87,7 +87,7 @@ function GetUtilParametersByArgs() {
                 "mssql",
                 "postgres",
                 "mysql",
-                "mariadb",
+                // "mariadb",
                 "oracle",
                 "sqlite"
             ],
@@ -211,7 +211,7 @@ async function GetUtilParametersByInquirer() {
                 "mssql",
                 "postgres",
                 "mysql",
-                "mariadb",
+                // "mariadb",
                 "oracle",
                 "sqlite"
             ],
