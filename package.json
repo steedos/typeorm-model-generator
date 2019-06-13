@@ -1,17 +1,14 @@
 {
   "name": "@steedos/steedos-model-generator",
   "version": "0.1.34",
+  "private": false,
   "description": "Generates models for steedos from existing databases.",
   "bin": "bin/steedos-model-generator",
   "scripts": {
     "setup": "npm install",
     "start": " node ./dist/src/index.js",
-    "compile": "npm run clean && tsc",
-    "test": "istanbul cover ./node_modules/mocha/bin/_mocha dist/test/**/*.test.js  -- -R spec --bail",
-    "posttest": "remap-istanbul -i ./coverage/coverage.json -o ./coverage/lcov.info -t lcovonly && remap-istanbul -i ./coverage/coverage.json -o ./coverage/coverage.json",
-    "clean": "rimraf dist coverage output",
     "prettier": "prettier --write ./src/*.ts ./src/**/*.ts",
-    "prepack": "npm run compile"
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha dist/test/**/*.test.js  -- -R spec --bail"
   },
   "repository": {
     "type": "git",
@@ -75,5 +72,8 @@
     "hooks": {
       "pre-commit": "npm run prettier && git update-index --again"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
