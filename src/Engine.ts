@@ -389,7 +389,8 @@ function createHandlebarsHelpers(generationOptions: IGenerationOptions) {
         or: (v1, v2, v3, v4, v5, v6) => v1 || v2 || v3 || v4 || v5 || v6,
         isEmpty: v => !v || v.length === 0,
         contain: (v1, v2) => v1 && v1.indexOf(v2) != -1,
-        isMultiple: v => v && v.length > 1
+        isMultiple: v => v && v.length > 1,
+        showFieldDBType: v => ["bigint", "timestamp"].includes(v)
     });
 }
 

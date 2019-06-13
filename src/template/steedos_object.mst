@@ -20,7 +20,7 @@ fields:{{#Columns}}{{#options}}{{#if name}}
     precision: {{.}}{{/precision}}{{#scale}}
     scale: {{.}}{{/scale}}{{^scale}}{{#if (contain type 'money')}}
     scale: 4{{/if}}{{/scale}}{{^nullable}}
-    required: true{{/nullable}}{{#if (eq type 'bigint')}}
+    required: true{{/nullable}}{{#if (showFieldDBType type)}}
     fieldDBType: {{type}}{{/if}}{{#if (eq name 'name')}}
     is_name: true{{/if}}
     is_wide: false
