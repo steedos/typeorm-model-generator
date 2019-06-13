@@ -5,7 +5,7 @@ export function LogError(
     errObject?: any
 ) {
     console.error(errText);
-    console.error(`Error occured in typeorm-model-generator.`);
+    console.error(`Error occured in steedos-model-generator.`);
     console.error(`${packageVersion()}  node@${process.version}`);
     console.error(
         `If you think this is a bug please open an issue including this log on ${
