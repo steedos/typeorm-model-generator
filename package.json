@@ -1,6 +1,6 @@
 {
-  "name": "steedos-model-generator",
-  "version": "0.3.4",
+  "name": "@steedos/steedos-model-generator",
+  "version": "0.1.34",
   "description": "Generates models for steedos from existing databases.",
   "bin": "bin/steedos-model-generator",
   "scripts": {
