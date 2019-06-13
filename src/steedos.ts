@@ -16,7 +16,7 @@ export default class Steedos {
             return "number";
         }
 
-        if (dbType === "text") {
+        if (dbType === "text" || dbType === "ntext") {
             return "textarea";
         }
 
