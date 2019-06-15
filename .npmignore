@@ -17,6 +17,7 @@ gulpfile.js
 !src/
 src/*
 !src/*.mst
+!src/template
 test/
 .travis.yml
 codecov.yml
