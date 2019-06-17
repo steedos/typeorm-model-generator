@@ -1,4 +1,6 @@
 import * as packagejson from "./../../package.json";
+const yaml = require("js-yaml");
+const fs = require("fs");
 export function LogError(
     errText: string,
     isABug: boolean = true,
@@ -21,4 +23,13 @@ export function LogError(
 }
 export function packageVersion() {
     return `${(packagejson as any).name}@${(packagejson as any).version}`;
+}
+
+export function loadYmlFile(filePath: string) {
+    return yaml.load(fs.readFileSync(filePath, "utf8"));
+}
+
+export function writeYmlFile(filePath: string, data: any) {
+    const ymlConfig = yaml.dump(data);
+    fs.writeFileSync(filePath, ymlConfig);
 }

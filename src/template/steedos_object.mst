@@ -5,9 +5,9 @@ fields:{{#Columns}}{{#options}}{{#if name}}
   {{name}}:
     label: {{toLabel name}}{{#generated}}
     type: {{../steedosType}}{{/generated}}{{^generated}}{{#if (isEmpty ../relations)}}
-    type: {{../steedosType}}{{else}}{{#if (isMultiple ../reference_to)}}
+    type: {{../steedosType}}{{else}}{{#if (isMultiple ../referenceTo)}}
     type: lookup
-    reference_to: {{#each ../reference_to}}
+    reference_to: {{#each ../referenceTo}}
       - {{name}}{{/each}}{{else}}{{#../relations}}{{#if (or isOneToMany isManyToMany isOneToOne isManyToOne)}}{{#if isOneToMany}}
     type: master_detail
     reference_to: {{relatedTable}}{{else}}

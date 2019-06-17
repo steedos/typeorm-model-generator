@@ -16,5 +16,5 @@ export class ColumnInfo {
         | "any";
     public relations: RelationInfo[] = [];
     public steedosType: string;
-    public reference_to: string;
+    public referenceTo: string;
 }

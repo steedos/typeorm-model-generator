@@ -16,6 +16,7 @@ import { EntityInfo } from "./models/EntityInfo";
 import { NamingStrategy } from "./NamingStrategy";
 import Steedos from "./steedos";
 import * as TomgUtils from "./Utils";
+import { loadYmlFile } from "./Utils";
 
 export function createDriver(driverName: string): AbstractDriver {
     switch (driverName) {
@@ -131,7 +132,7 @@ export function modelGenerationPhaseToSteedosYml(
         columns.forEach(column => {
             column.steedosType = Steedos.getSteedosType(column);
             if (element.tsEntityName === "QUEST_SOO_AT_EXECUTION_PLAN") {
-                column.reference_to = Steedos.getSteedosReferenceTo(column);
+                column.referenceTo = Steedos.getSteedosReferenceTo(column);
             }
         });
 
@@ -443,15 +444,45 @@ function createSteedosConfig(
         noEscape: true
     });
 
-    const rendered = compliedTemplate(templateData);
-    fs.writeFileSync(
-        path.resolve(resultPath, "../steedos-config.yml"),
-        rendered,
-        {
+    const configPath = path.resolve(resultPath, "../steedos-config.yml");
+
+    let config: any = "";
+
+    if (fs.existsSync(configPath)) {
+        config = TomgUtils.loadYmlFile(configPath);
+    }
+
+    if (config) {
+        if (!config.datasources) {
+            config.datasources = {};
+        }
+
+        config.datasources[templateData.datasourceName] = {
+            connection: {
+                driver:
+                    templateData.databaseType === "mssql"
+                        ? "sqlserver"
+                        : templateData.databaseType,
+                host: templateData.host,
+                port: templateData.port,
+                username: templateData.user,
+                // tslint:disable-next-line: object-literal-sort-keys
+                password: templateData.password,
+                database: templateData.databaseName
+            },
+            objectFiles: [templateData.entitesPath],
+            // tslint:disable-next-line: object-literal-sort-keys
+            appFiles: [templateData.entitesPath]
+        };
+
+        TomgUtils.writeYmlFile(configPath, config);
+    } else {
+        const rendered = compliedTemplate(templateData);
+        fs.writeFileSync(configPath, rendered, {
             encoding: "UTF-8",
             flag: "w"
-        }
-    );
+        });
+    }
 }
 
 function createSteedosAppConfig(
