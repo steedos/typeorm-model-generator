@@ -96,7 +96,7 @@ function GetUtilParametersByArgs() {
         })
         .option("o", {
             alias: "output",
-            default: path.resolve(process.cwd(), "output"),
+            default: path.resolve(process.cwd(), "src"),
             describe: "Where to place generated models"
         })
         .option("s", {
@@ -300,7 +300,7 @@ async function GetUtilParametersByInquirer() {
     }
     generationOptions.resultsPath = ((await inquirer.prompt([
         {
-            default: path.resolve(process.cwd(), "output"),
+            default: path.resolve(process.cwd(), "src"),
             message: "Path where generated models should be stored:",
             name: "output",
             type: "input"

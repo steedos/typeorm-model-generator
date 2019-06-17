@@ -129,11 +129,9 @@ export function modelGenerationPhaseToSteedosYml(
 
         const columns = element.Columns;
         columns.forEach(column => {
-            column.options.steedosType = Steedos.getSteedosType(column);
+            column.steedosType = Steedos.getSteedosType(column);
             if (element.tsEntityName === "QUEST_SOO_AT_EXECUTION_PLAN") {
-                column.options.reference_to = Steedos.getSteedosReferenceTo(
-                    column
-                );
+                column.reference_to = Steedos.getSteedosReferenceTo(column);
             }
         });
 
@@ -430,7 +428,10 @@ function createSteedosConfig(
         templateData.datasourceName = connectionOptions.databaseName;
     }
 
-    templateData.entitesPath = path.relative(resultPath, entitesPath);
+    templateData.entitesPath = path.relative(
+        path.join(resultPath, ".."),
+        entitesPath
+    );
 
     const templatePath = path.resolve(
         __dirname,
@@ -443,10 +444,14 @@ function createSteedosConfig(
     });
 
     const rendered = compliedTemplate(templateData);
-    fs.writeFileSync(path.resolve(resultPath, "steedos-config.yml"), rendered, {
-        encoding: "UTF-8",
-        flag: "w"
-    });
+    fs.writeFileSync(
+        path.resolve(resultPath, "../steedos-config.yml"),
+        rendered,
+        {
+            encoding: "UTF-8",
+            flag: "w"
+        }
+    );
 }
 
 function createSteedosAppConfig(

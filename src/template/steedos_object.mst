@@ -4,16 +4,16 @@ icon: contact_list
 fields:{{#Columns}}{{#options}}{{#if name}}
   {{name}}:
     label: {{toLabel name}}{{#generated}}
-    type: {{steedosType}}{{/generated}}{{^generated}}{{#if (isEmpty ../relations)}}
-    type: {{steedosType}}{{else}}{{#if (isMultiple reference_to)}}
+    type: {{../steedosType}}{{/generated}}{{^generated}}{{#if (isEmpty ../relations)}}
+    type: {{../steedosType}}{{else}}{{#if (isMultiple ../reference_to)}}
     type: lookup
-    reference_to: {{#each reference_to}}
+    reference_to: {{#each ../reference_to}}
       - {{name}}{{/each}}{{else}}{{#../relations}}{{#if (or isOneToMany isManyToMany isOneToOne isManyToOne)}}{{#if isOneToMany}}
     type: master_detail
     reference_to: {{relatedTable}}{{else}}
     type: lookup
     reference_to: {{relatedTable}}{{/if}}{{else}}
-    type: {{steedosType}}{{/if}}{{/../relations}}{{/if}}{{/if}}{{/generated}}{{#if (eq steedosType 'textarea')}}
+    type: {{../steedosType}}{{/if}}{{/../relations}}{{/if}}{{/if}}{{/generated}}{{#if (eq steedosType 'textarea')}}
     rows: 4 {{/if}}{{#primary}}
     primary: {{primary}}{{/primary}}{{#generated}}
     generated: true{{/generated}}{{#precision}}
