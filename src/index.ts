@@ -8,14 +8,12 @@ import { IConnectionOptions } from "./IConnectionOptions";
 import { IGenerationOptions } from "./IGenerationOptions";
 import * as TomgUtils from "./Utils";
 
-CliLogic();
-
-async function CliLogic() {
+export async function CliLogic(minLength) {
     console.log(TomgUtils.packageVersion());
     let driver: AbstractDriver;
     let connectionOptions: IConnectionOptions;
     let generationOptions: IGenerationOptions;
-    if (process.argv.length > 2) {
+    if (process.argv.length > minLength) {
         const retVal = GetUtilParametersByArgs();
         connectionOptions = retVal.connectionOptions;
         generationOptions = retVal.generationOptions;

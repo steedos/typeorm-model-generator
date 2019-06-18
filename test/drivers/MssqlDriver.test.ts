@@ -94,6 +94,8 @@ describe('MssqlDriver', function () {
             tsName: 'name',
             tsType: 'number',
             relations: [] as RelationInfo[],
+            steedosType: '',
+            referenceTo: ''
         })
         const result = await driver.GetCoulmnsFromEntity(entities, 'schema','db');
         expect(result).to.be.deep.equal(expected)
