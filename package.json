@@ -1,6 +1,6 @@
 {
   "name": "@steedos/steedos-model-generator",
-  "version": "0.5.34",
+  "version": "1.20.0",
   "private": false,
   "description": "Generates models for steedos from existing databases.",
   "bin": "bin/steedos-model-generator",
@@ -27,7 +27,7 @@
     "inquirer": "^6.2.2",
     "mssql": "^4.3.2",
     "mysql": "^2.16.0",
-    "oracledb": "^3.1.2",
+    "oracledb": "^4.2.0",
     "pg": "^7.8.1",
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^4.0.6",
